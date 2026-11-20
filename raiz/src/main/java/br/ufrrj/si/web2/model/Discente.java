@@ -1,15 +1,11 @@
 package br.ufrrj.si.web2.model;
 
 //import javax.persistence.*;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Representa o aluno (discente) de Sistemas de Informação.
- * Regra: cadastrado automaticamente no primeiro acesso (nome + matrícula).
- * Uma vez cadastrado, não pode ser alterado nem excluído.
- */
 //@Entity
 //@Table(name = "discentes")
 public class Discente implements Serializable {
@@ -20,70 +16,39 @@ public class Discente implements Serializable {
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(nullable = false, length = 120)
+//    @Column(nullable = false)//, length = 120)
     private String nomeCompleto;
 
-//    @Column(nullable = false, unique = true, length = 20)
+//    @Column(nullable = false)//, unique = true, length = 20)
     private String matricula;
 
 //    @OneToMany(mappedBy = "discente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Solicitacao> solicitacoes = new ArrayList<>();
 
-    public Discente() {
-    }
-
-    public Discente(Long id, String nomeCompleto, String matricula) {
-        this.id = id;
-        this.nomeCompleto = nomeCompleto;
-        this.matricula = matricula;
-    }
-
-    /**
-     * Soma as horas concedidas nas solicitações CONCLUIDAS de uma categoria específica.
-     */
-    public int calcularHorasConcluidasPorTipo(TipoHoras tipo) {
-        int total = 0;
+    // Soma as horas concedidas das solicitações já CONCLUIDAS por tipo
+    public int calcularHorasPorTipo(TipoHoras tipo) {
+        int soma = 0;
         for (Solicitacao s : solicitacoes) {
-            if (s.getTipoHoras() == tipo
-                    && s.getStatus() == StatusSolicitacao.CONCLUIDO
-                    && s.getHorasConcedidas() != null) {
-                total += s.getHorasConcedidas();
+            if (s.getTipoHoras() == tipo && s.getStatus() == StatusSolicitacao.CONCLUIDO && s.getHorasConcedidas() != null) {
+                soma += s.getHorasConcedidas();
             }
         }
-        return total;
+        return soma;
     }
 
-    /**
-     * Soma todas as horas concluídas do discente somando todas as comissões.
-     */
-    public int calcularTotalHorasConcluidas() {
-        int total = 0;
-        for (Solicitacao s : solicitacoes) {
-            if (s.getStatus() == StatusSolicitacao.CONCLUIDO && s.getHorasConcedidas() != null) {
-                total += s.getHorasConcedidas();
-            }
-        }
-        return total;
+    public int getHorasExtensao() {
+        return calcularHorasPorTipo(TipoHoras.EXTENSAO);
     }
 
-    // Getters específicos para facilitar acesso via Expression Language (EL) no JSP
-    public int getHorasConcluidasExtensao() {
-        return calcularHorasConcluidasPorTipo(TipoHoras.EXTENSAO);
+    public int getHorasComplementar() {
+        return calcularHorasPorTipo(TipoHoras.COMPLEMENTAR);
     }
 
-    public int getHorasConcluidasComplementar() {
-        return calcularHorasConcluidasPorTipo(TipoHoras.COMPLEMENTAR);
+    public int getHorasEstagio() {
+        return calcularHorasPorTipo(TipoHoras.ESTAGIO);
     }
 
-    public int getHorasConcluidasEstagio() {
-        return calcularHorasConcluidasPorTipo(TipoHoras.ESTAGIO);
-    }
-
-    public int getTotalHorasConcluidas() {
-        return calcularTotalHorasConcluidas();
-    }
-
-    // Getters e Setters padrão
+    // Getters e Setters
     public Long getId() {
         return id;
     }

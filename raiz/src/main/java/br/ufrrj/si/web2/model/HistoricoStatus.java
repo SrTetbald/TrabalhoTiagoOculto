@@ -3,18 +3,12 @@ package br.ufrrj.si.web2.model;
 //import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-/**
- * Registro de trilha de auditoria para toda mudança de status de uma solicitação.
- * Guarda quem fez a alteração, em qual função (mandato) e quando.
- */
 //@Entity
 //@Table(name = "historico_status")
 public class HistoricoStatus implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private static final DateTimeFormatter FORMATADOR_DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,8 +36,7 @@ public class HistoricoStatus implements Serializable {
 //    @Column(nullable = false)
     private LocalDateTime dataRegistro = LocalDateTime.now();
 
-    public HistoricoStatus() {
-    }
+    public HistoricoStatus() {}
 
     // Construtor para ações realizadas pelo Discente (sem AtuacaoComissao)
     public HistoricoStatus(Solicitacao solicitacao, StatusSolicitacao status, String observacao, String nomeDiscente) {
@@ -61,69 +54,29 @@ public class HistoricoStatus implements Serializable {
         this.status = status;
         this.observacaoOuParecer = observacao;
         this.atuacaoResponsavel = atuacao;
-        this.alteradoPor = atuacao.getMembro().getNomeCompleto() + " (" + atuacao.getPerfil().getDescricao() + ")";
+        this.alteradoPor = atuacao.getMembro().getNomeCompleto() + " (" + atuacao.getPerfil().name() + ")";
         this.dataRegistro = LocalDateTime.now();
     }
 
-    public String getDataRegistroFormatada() {
-        return dataRegistro != null ? dataRegistro.format(FORMATADOR_DATA_HORA) : "";
-    }
-
     // Getters e Setters
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Solicitacao getSolicitacao() { return solicitacao; }
+    public void setSolicitacao(Solicitacao solicitacao) { this.solicitacao = solicitacao; }
 
-    public Solicitacao getSolicitacao() {
-        return solicitacao;
-    }
+    public StatusSolicitacao getStatus() { return status; }
+    public void setStatus(StatusSolicitacao status) { this.status = status; }
 
-    public void setSolicitacao(Solicitacao solicitacao) {
-        this.solicitacao = solicitacao;
-    }
+    public String getObservacaoOuParecer() { return observacaoOuParecer; }
+    public void setObservacaoOuParecer(String observacaoOuParecer) { this.observacaoOuParecer = observacaoOuParecer; }
 
-    public StatusSolicitacao getStatus() {
-        return status;
-    }
+    public AtuacaoComissao getAtuacaoResponsavel() { return atuacaoResponsavel; }
+    public void setAtuacaoResponsavel(AtuacaoComissao atuacaoResponsavel) { this.atuacaoResponsavel = atuacaoResponsavel; }
 
-    public void setStatus(StatusSolicitacao status) {
-        this.status = status;
-    }
+    public String getAlteradoPor() { return alteradoPor; }
+    public void setAlteradoPor(String alteradoPor) { this.alteradoPor = alteradoPor; }
 
-    public String getObservacaoOuParecer() {
-        return observacaoOuParecer;
-    }
-
-    public void setObservacaoOuParecer(String observacaoOuParecer) {
-        this.observacaoOuParecer = observacaoOuParecer;
-    }
-
-    public AtuacaoComissao getAtuacaoResponsavel() {
-        return atuacaoResponsavel;
-    }
-
-    public void setAtuacaoResponsavel(AtuacaoComissao atuacaoResponsavel) {
-        this.atuacaoResponsavel = atuacaoResponsavel;
-    }
-
-    public String getAlteradoPor() {
-        return alteradoPor;
-    }
-
-    public void setAlteradoPor(String alteradoPor) {
-        this.alteradoPor = alteradoPor;
-    }
-
-    public LocalDateTime getDataRegistro() {
-        return dataRegistro;
-    }
-
-    public void setDataRegistro(LocalDateTime dataRegistro) {
-        this.dataRegistro = dataRegistro;
-    }
+    public LocalDateTime getDataRegistro() { return dataRegistro; }
+    public void setDataRegistro(LocalDateTime dataRegistro) { this.dataRegistro = dataRegistro; }
 }
-

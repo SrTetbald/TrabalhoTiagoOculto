@@ -3,20 +3,9 @@ package br.ufrrj.si.web2.util;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import br.ufrrj.si.web2.model.AtuacaoComissao;
+import br.ufrrj.si.web2.model.*;
 import br.ufrrj.si.web2.model.AtuacaoComissao.PerfilComissao;
-import br.ufrrj.si.web2.model.Discente;
-import br.ufrrj.si.web2.model.HistoricoStatus;
-import br.ufrrj.si.web2.model.MembroComissao;
-import br.ufrrj.si.web2.model.Solicitacao;
-import br.ufrrj.si.web2.model.StatusSolicitacao;
-import br.ufrrj.si.web2.model.TipoHoras;
 
-/**
- * Classe com método main solicitada no Entregável 2 para simular a criação,
- * o relacionamento entre os objetos, a vigência de mandatos, a validação da máquina de estados,
- * a detecção de duplicidade cruzada e a trilha de auditoria.
- */
 public class TesteDominioSGHA {
 
     public static void main(String[] args) {
@@ -107,72 +96,56 @@ public class TesteDominioSGHA {
         // 4. COMISSÃO ANALISA, AJUSTA O NOME DO DOCUMENTO E EMITE PARECER PARCIAL
         AtuacaoComissao avaliadorExtensao = profCarlos.getAtuacaoVigente();
         if (avaliadorExtensao != null) {
-            sol.emitirParecerDaComissao(
-                    avaliadorExtensao,
-                    25,
-                    "Deferido parcialmente (25h). O certificado comprova apenas os 3 dias do evento.",
-                    "Verificado no sistema: não há duplicidade em Atividades Complementares.",
-                    "Certificado Monitoria Feira de Tecnologia UFRRJ 2026.pdf"
+            sol.setNomeDocumento("Certificado Monitoria Feira de Tecnologia UFRRJ 2026.pdf");
+            sol.setHorasConcedidas(25);
+            sol.setObservacaoParecerPublico("Deferido parcialmente (25h). O certificado comprova apenas os 3 dias do evento.");
+            sol.setObservacaoAdministrativa("Verificado no sistema: não há duplicidade em Atividades Complementares.");
+
+            sol.atualizarStatusPorComissao(
+                StatusSolicitacao.AVALIADA,
+                "Parecer inicial emitido: 25h concedidas.",
+                avaliadorExtensao
             );
         }
 
         // 5. DISCENTE NÃO CONCORDA E ABRE RECURSO
         sol.atualizarStatusPorDiscente(
-                StatusSolicitacao.RECURSO,
-                "Anexei declaração complementar da coordenação do evento comprovando reuniões preparatórias."
+            StatusSolicitacao.RECURSO,
+            "Anexei declaração complementar da coordenação do evento comprovando reuniões preparatórias."
         );
 
         // 6. SIMULAÇÃO DE CANCELAMENTO ACIDENTAL E RESTAURAÇÃO PELO COORDENADOR
         sol.atualizarStatusPorDiscente(StatusSolicitacao.CANCELADA, "Discente clicou em cancelar por engano.");
-        System.out.println("--- 2. Teste de Cancelamento, Bloqueio e Restauração ---");
+        System.out.println("--- 2. Teste de Cancelamento e Restauração ---");
         System.out.println("Status após cancelamento: " + sol.getStatus());
         System.out.println("Status guardado para restauração: " + sol.getStatusAnteriorAoCancelamento());
-
-        // Tentativa inválida: membro comum de comissão tentando restaurar (deve ser bloqueado!)
-        try {
-            sol.atualizarStatusPorComissao(sol.getStatusAnteriorAoCancelamento(), "Tentativa por membro comum", avaliadorExtensao);
-        } catch (IllegalStateException ex) {
-            System.out.println("Bloqueio validado com sucesso: " + ex.getMessage());
-        }
 
         // Apenas o Coordenador restaura
         AtuacaoComissao coord = profTiago.getAtuacaoVigente();
         if (coord != null && coord.getPerfil() == PerfilComissao.COORDENADOR) {
             StatusSolicitacao statusRestaurado = sol.getStatusAnteriorAoCancelamento();
             sol.atualizarStatusPorComissao(
-                    statusRestaurado,
-                    "Solicitação restaurada a pedido do discente.",
-                    coord
+                statusRestaurado,
+                "Solicitação restaurada a pedido do discente.",
+                coord
             );
             System.out.println("Status após restauração pelo Coordenador: " + sol.getStatus() + "\n");
         }
 
         // 7. REAVALIAÇÃO APÓS RECURSO E CONCLUSÃO DO PROCESSO
-        sol.emitirParecerDaComissao(
-                avaliadorExtensao,
-                35,
-                "Recurso deferido parcialmente. Ajustado para 35h mediante declaração complementar.",
-                null,
-                null
+        sol.setHorasConcedidas(35);
+        sol.setObservacaoParecerPublico("Recurso deferido parcialmente. Ajustado para 35h mediante declaração complementar.");
+        sol.atualizarStatusPorComissao(
+            StatusSolicitacao.AVALIADA_APOS_RECURSO,
+            "Reavaliação concluída com ajuste para 35h.",
+            avaliadorExtensao
         );
 
-        // Discente aceita o novo parecer -> Avança automaticamente de ACEITA para CONCLUIDO
+        // Discente aceita o novo parecer -> Avança para ACEITA e CONCLUIDO
         sol.atualizarStatusPorDiscente(StatusSolicitacao.ACEITA, "Discente aceitou o parecer do recurso.");
 
-        // 8. TESTE DE DETECÇÃO DE DUPLICIDADE CRUZADA ENTRE COMISSÕES
-        Solicitacao solDuplicada = new Solicitacao();
-        solDuplicada.setId(502L);
-        solDuplicada.setDiscente(aluno);
-        solDuplicada.setTipoHoras(TipoHoras.COMPLEMENTAR);
-        solDuplicada.setNomeDocumento("Declaração Feira de Tecnologia UFRRJ 2026.pdf");
-        System.out.println("--- 3. Teste de Alerta de Duplicidade Cruzada ---");
-        System.out.println("Documento 1 (" + sol.getTipoHoras() + "): " + sol.getNomeDocumento());
-        System.out.println("Documento 2 (" + solDuplicada.getTipoHoras() + "): " + solDuplicada.getNomeDocumento());
-        System.out.println("Duplicidade detectada? " + (solDuplicada.temDocumentoSemelhante(sol) ? "SIM (Alerta acionado!)" : "NÃO"));
-        System.out.println();
-
-        // 9. IMPRESSÃO DO RELATÓRIO FINAL E TRILHA DE AUDITORIA
-        System.out.println("--- 4. Resumo Final da Solicitação #" + sol.getId() + " ---");
+        // 8. IMPRESSÃO DO RELATÓRIO FINAL E TRILHA DE AUDITORIA
+        System.out.println("--- 3. Resumo Final da Solicitação #" + sol.getId() + " ---");
         System.out.println("Discente:             " + sol.getDiscente().getNomeCompleto() + " (" + sol.getDiscente().getMatricula() + ")");
         System.out.println("Documento (Ajustado): " + sol.getNomeDocumento());
         System.out.println("Comissão Destino:     " + sol.getTipoHoras().getDescricao());
@@ -181,9 +154,9 @@ public class TesteDominioSGHA {
         System.out.println("Parecer Público:      " + sol.getObservacaoParecerPublico());
         System.out.println("Obs. Administrativa:  " + sol.getObservacaoAdministrativa());
 
-        System.out.println("\n--- 5. Trilha de Auditoria (HistoricoStatus) ---");
+        System.out.println("\n--- 4. Trilha de Auditoria (HistoricoStatus) ---");
         for (HistoricoStatus h : sol.getHistoricos()) {
-            System.out.printf("[%s] %-22s | Por: %-48s | Obs: %s%n",
+            System.out.printf("[%s] %-22s | Por: %-42s | Obs: %s%n",
                     h.getDataRegistro().format(fmt),
                     h.getStatus(),
                     h.getAlteradoPor(),
@@ -191,4 +164,3 @@ public class TesteDominioSGHA {
         }
     }
 }
-

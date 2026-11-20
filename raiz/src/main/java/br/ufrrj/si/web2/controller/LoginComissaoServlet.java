@@ -2,9 +2,10 @@ package br.ufrrj.si.web2.controller;
 
 import java.io.IOException;
 
+import br.ufrrj.si.web2.dao.BancoMemoria;
 import br.ufrrj.si.web2.model.AtuacaoComissao;
 import br.ufrrj.si.web2.model.MembroComissao;
-import br.ufrrj.si.web2.repositorio.RepositorioMemoria;
+import br.ufrrj.si.web2.model.Solicitacao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -12,10 +13,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet de autenticação dos membros de comissão, coordenador e secretário.
- * Valida login, senha e se existe uma atuação (mandato) ativa e dentro da vigência.
- */
 @WebServlet("/loginComissao")
 public class LoginComissaoServlet extends HttpServlet {
 
@@ -29,34 +26,47 @@ public class LoginComissaoServlet extends HttpServlet {
         String username = request.getParameter("username");
         String senha = request.getParameter("senha");
 
-        MembroComissao membro = RepositorioMemoria.getInstancia().buscarMembroPorUsername(username);
+        MembroComissao membro = BancoMemoria.buscarMembro(username);
         if (membro == null || !membro.getSenha().equals(senha)) {
-            request.setAttribute("erroComissao", "Usuário ou senha inválidos.");
+            request.setAttribute("erroLogin", "Usuário ou senha incorretos.");
             request.getRequestDispatcher("/index.jsp").forward(request, response);
             return;
         }
 
-        // Regra de vigência de mandato: apenas contas com atuação ativa e dentro da validade podem logar
-        AtuacaoComissao atuacaoVigente = membro.getAtuacaoVigente();
-        if (atuacaoVigente == null) {
-            request.setAttribute("erroComissao",
-                    "Acesso bloqueado para " + membro.getNomeCompleto()
-                    + ": seu mandato/atuação na comissão está expirado ou inativo.");
+        AtuacaoComissao atuacao = membro.getAtuacaoVigente();
+        if (atuacao == null) {
+            request.setAttribute("erroLogin", "Mandato expirado ou inativo para " + membro.getNomeCompleto());
             request.getRequestDispatcher("/index.jsp").forward(request, response);
             return;
         }
 
-        HttpSession sessao = request.getSession(true);
-        sessao.setAttribute("membroLogado", membro);
-        sessao.setAttribute("atuacaoVigente", atuacaoVigente);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("membroLogado", membro);
+        session.setAttribute("atuacaoVigente", atuacao);
 
-        response.sendRedirect(request.getContextPath() + "/painelComissao");
+        carregarTela(request, response);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/painelComissao");
+        carregarTela(request, response);
+    }
+
+    public static void carregarTela(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setAttribute("listaSolicitacoes", BancoMemoria.solicitacoes);
+
+        Solicitacao selecionada = null;
+        String idParam = request.getParameter("id");
+        if (idParam != null && !idParam.isEmpty()) {
+            selecionada = BancoMemoria.buscarSolicitacaoPorId(Long.valueOf(idParam));
+        } else if (!BancoMemoria.solicitacoes.isEmpty()) {
+            selecionada = BancoMemoria.solicitacoes.get(0);
+        }
+
+        request.setAttribute("solicitacaoSelecionada", selecionada);
+        request.getRequestDispatcher("/comissao.jsp").forward(request, response);
     }
 }
-

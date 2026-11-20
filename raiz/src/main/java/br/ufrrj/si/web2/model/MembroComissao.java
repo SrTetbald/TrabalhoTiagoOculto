@@ -6,10 +6,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Representa a conta de usuário de um membro de comissão, coordenador ou secretário.
- * Um mesmo membro pode ter várias atuações (mandatos) ao longo do tempo.
- */
 //@Entity
 //@Table(name = "membros_comissao")
 public class MembroComissao implements Serializable {
@@ -35,66 +31,29 @@ public class MembroComissao implements Serializable {
 //    @OneToMany(mappedBy = "membro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<AtuacaoComissao> atuacoes = new ArrayList<>();
 
-    public MembroComissao() {
-    }
+    public MembroComissao() {}
 
-    /**
-     * Retorna a atuação vigente hoje (ou null se o usuário estiver sem mandato ativo/expirado).
-     */
+    // Método auxiliar de negócio: retorna a atuação vigente hoje (ou null se afastado/inativo)
     public AtuacaoComissao getAtuacaoVigente() {
-        return atuacoes.stream()
-                .filter(AtuacaoComissao::isVigenteHoje)
-                .findFirst()
-                .orElse(null);
+        for (AtuacaoComissao a : atuacoes) {
+            if (a.isVigenteHoje()) {
+                return a;
+            }
+        }
+        return null;
     }
 
     // Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public String getNomeCompleto() {
-        return nomeCompleto;
-    }
-
-    public void setNomeCompleto(String nomeCompleto) {
-        this.nomeCompleto = nomeCompleto;
-    }
-
-    public LocalDateTime getDataCriacaoCadastro() {
-        return dataCriacaoCadastro;
-    }
-
-    public void setDataCriacaoCadastro(LocalDateTime dataCriacaoCadastro) {
-        this.dataCriacaoCadastro = dataCriacaoCadastro;
-    }
-
-    public List<AtuacaoComissao> getAtuacoes() {
-        return atuacoes;
-    }
-
-    public void setAtuacoes(List<AtuacaoComissao> atuacoes) {
-        this.atuacoes = atuacoes;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
+    public String getNomeCompleto() { return nomeCompleto; }
+    public void setNomeCompleto(String nomeCompleto) { this.nomeCompleto = nomeCompleto; }
+    public LocalDateTime getDataCriacaoCadastro() { return dataCriacaoCadastro; }
+    public void setDataCriacaoCadastro(LocalDateTime dataCriacaoCadastro) { this.dataCriacaoCadastro = dataCriacaoCadastro; }
+    public List<AtuacaoComissao> getAtuacoes() { return atuacoes; }
+    public void setAtuacoes(List<AtuacaoComissao> atuacoes) { this.atuacoes = atuacoes; }
 }
-

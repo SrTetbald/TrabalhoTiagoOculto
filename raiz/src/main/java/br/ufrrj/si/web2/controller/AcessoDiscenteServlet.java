@@ -2,8 +2,8 @@ package br.ufrrj.si.web2.controller;
 
 import java.io.IOException;
 
+import br.ufrrj.si.web2.dao.BancoMemoria;
 import br.ufrrj.si.web2.model.Discente;
-import br.ufrrj.si.web2.repositorio.RepositorioMemoria;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,11 +11,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Servlet responsável pela identificação e cadastro simplificado do discente.
- * Se a matrícula não existir, cadastra o aluno automaticamente.
- * Se já existir, recupera o cadastro e suas solicitações anteriores.
- */
 @WebServlet("/acessoDiscente")
 public class AcessoDiscenteServlet extends HttpServlet {
 
@@ -26,38 +21,26 @@ public class AcessoDiscenteServlet extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
-        String nomeCompleto = request.getParameter("nomeCompleto");
+        String nome = request.getParameter("nomeCompleto");
         String matricula = request.getParameter("matricula");
 
-        if (nomeCompleto == null || nomeCompleto.trim().isEmpty()
-                || matricula == null || matricula.trim().isEmpty()) {
-            request.setAttribute("erroDiscente", "Informe seu nome completo e número de matrícula.");
-            request.getRequestDispatcher("/index.jsp").forward(request, response);
-            return;
-        }
+        Discente discente = BancoMemoria.buscarOuCriarDiscente(nome, matricula);
 
-        RepositorioMemoria repo = RepositorioMemoria.getInstancia();
-        boolean jaExistia = (repo.buscarDiscentePorMatricula(matricula) != null);
-        Discente discente = repo.buscarOuCadastrarDiscente(nomeCompleto, matricula);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("discenteLogado", discente);
 
-        // Inicia a sessão do discente 
-        HttpSession sessao = request.getSession(true);
-        sessao.setAttribute("discenteLogado", discente);
-        if (!jaExistia) {
-            sessao.setAttribute("mensagemSucesso",
-                    "Primeiro acesso identificado! Cadastro criado automaticamente para a matrícula " + discente.getMatricula() + ".");
-        } else {
-            sessao.setAttribute("mensagemSucesso",
-                    "Bem-vindo(a) de volta, " + discente.getNomeCompleto() + "! Suas solicitações anteriores foram carregadas.");
-        }
-
-        response.sendRedirect(request.getContextPath() + "/painelDiscente");
+        request.getRequestDispatcher("/discente.jsp").forward(request, response);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/painelDiscente");
+
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("discenteLogado") == null) {
+            response.sendRedirect("index.jsp");
+            return;
+        }
+        request.getRequestDispatcher("/discente.jsp").forward(request, response);
     }
 }
-
