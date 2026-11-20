@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>SGHA - Painel de Avaliação da Comissão</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold text-warning" href="#">SGHA | Módulo de Gestão</a>
+        <span class="navbar-text text-white">
+            <i class="bi bi-shield-lock-fill text-warning"></i> Perfil: <strong>Coordenador / Prof. Tiago França</strong>
+        </span>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <!-- Filtros de Pesquisa para a Comissão / Secretário / Coordenador -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3 align-items-center">
+                <div class="col-md-5">
+                    <input type="text" class="form-control" placeholder="Buscar por nome do discente ou matrícula...">
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select">
+                        <option selected>Todas as Comissões</option>
+                        <option>Extensão</option>
+                        <option>Atividades Complementares</option>
+                        <option>Estágio</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-dark w-100"><i class="bi bi-search"></i> Pesquisar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Avaliação de Solicitação Selecionada -->
+    <div class="card border-0 shadow-sm border-start border-4 border-warning mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0">Avaliação da Solicitação #101</h5>
+            <span class="badge bg-warning text-dark fs-6">Status: RECURSO</span>
+        </div>
+        <div class="card-body">
+
+            <!-- ALERTA DE DUPLICIDADE AUTOMÁTICA -->
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-3 me-3"></i>
+                <div>
+                    <strong>ALERTA DE DUPLICIDADE DE DOCUMENTO IDENTIFICADA!</strong><br>
+                    O discente <strong>Carlos Eduardo da Silva</strong> já submeteu uma solicitação com o mesmo documento ("<em>Ação Social Lixo Zero</em>") para a <strong>Comissão de Atividades Complementares</strong> (Solicitação #88 - Deferida com 15h em 10/03/2026). 
+                    <button class="btn btn-sm btn-outline-danger ms-2" data-bs-toggle="collapse" data-bs-target="#detalhesDuplicidade">Ver detalhes e parecer anterior</button>
+                </div>
+            </div>
+
+            <!-- Painel Colapsável de Detalhes da Duplicidade -->
+            <div class="collapse mb-3" id="detalhesDuplicidade">
+                <div class="card card-body bg-light text-dark">
+                    <h6><strong>Histórico Cruzado: Solicitação #88 (Complementares)</strong></h6>
+                    <p class="mb-1"><strong>Parecer Anterior da Comissão Complementar:</strong> "Aprovado 15h como atividade cultural/social."</p>
+                    <p class="mb-0"><strong>Atenção:</strong> Avalie se a concessão de novas horas por esta comissão não resultará em contabilização dupla superior ao tempo real desempenhado na ação.</p>
+                </div>
+            </div>
+
+            <form action="avaliar" method="POST">
+                <div class="row align-items-end">
+				    <!-- Ajuste do Nome do Documento -->
+				    <div class="col-md-6 mb-3">
+				        <label class="form-label fw-bold">Nome / Título do Documento (Ajustável pela Comissão)</label>
+				        <div class="input-group">
+				            <input type="text" class="form-control" name="nomeDocumento" value="Certificado Ação Social Lixo Zero.pdf">
+				            <button class="btn btn-outline-secondary" type="button" title="Salvar alteração no nome">
+				                <i class="bi bi-check"></i> Ajustar
+				            </button>
+				        </div>
+				    </div>
+				
+				    <!-- BOTÃO PARA BAIXAR/VISUALIZAR O COMPROVANTE ANEXADO -->
+				    <div class="col-md-3 mb-3">
+				        <label class="form-label fw-bold d-block">Comprovante Anexado</label>
+				        <a href="downloadComprovante?id=101" target="_blank" class="btn btn-outline-primary w-100">
+				            <i class="bi bi-file-earmark-pdf-fill"></i> Abrir Arquivo
+				        </a>
+				    </div>
+				
+				    <div class="col-md-3 mb-3">
+				        <label class="form-label fw-bold">Horas Concedidas</label>
+				        <input type="number" class="form-control" name="horasConcedidas" value="20">
+				    </div>
+				</div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-muted">Observação do Discente</label>
+                    <p class="p-2 bg-light rounded border">"Estou enviando o certificado da ação comunitária para solicitação de horas de extensão."</p>
+                </div>
+
+                <!-- Campo de Observação do Parecer (Público) -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-primary">Parecer da Comissão (Visível para o Discente)</label>
+                    <textarea class="form-control" name="observacaoParecerPublico" rows="3" required>Deferido parcialmente com 20h de Extensão após revisão em grau de recurso.</textarea>
+                </div>
+
+                <!-- Campo de Observação Administrativa (Privada) -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-danger">Observação Administrativa (Privada - Visível apenas para Comissões e Coordenação)</label>
+                    <textarea class="form-control" name="observacaoAdministrativa" rows="2" placeholder="Ex: Discente tentou usar o mesmo certificado em Atividades Complementares (#88). Foi abatido a diferença de horas no parecer final."></textarea>
+                </div>
+
+                <!-- Ações do Coordenador / Comissão -->
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <!-- Prerrogativa do Coordenador -->
+                        <button type="button" class="btn btn-outline-secondary me-2"><i class="bi bi-arrow-counterclockwise"></i> Restaurar Solicitação Cancelada (Exclusivo Coordenador)</button>
+                    </div>
+                    <div>
+                        <button type="submit" name="decisao" value="REJEITAR" class="btn btn-outline-danger me-2">Indeferir / Rejeitar</button>
+                        <button type="submit" name="decisao" value="APROVAR" class="btn btn-success"><i class="bi bi-check2-circle"></i> Emitir Parecer Final</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

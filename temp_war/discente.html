@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>SGHA - Painel do Discente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">SGHA | Sistema de Horas</a>
+        <span class="navbar-text text-white">
+            <i class="bi bi-person-circle"></i> Discente: <strong>Carlos Eduardo da Silva</strong> (Matrícula: 2023019823)
+        </span>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <!-- Consolidação de Carga Horária Globais -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-white">
+                <div class="card-body">
+                    <h6 class="text-muted">Ações Extensionistas</h6>
+                    <h3 class="text-primary fw-bold">45 / 60h</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-white">
+                <div class="card-body">
+                    <h6 class="text-muted">Atividades Complementares</h6>
+                    <h3 class="text-success fw-bold">120 / 120h</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center bg-white">
+                <div class="card-body">
+                    <h6 class="text-muted">Horas de Estágio</h6>
+                    <h3 class="text-warning fw-bold">0 / 300h</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ações e Modal de Nova Solicitação -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="fw-bold">Minhas Solicitações</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovaSolicitacao">
+            <i class="bi bi-plus-lg"></i> Nova Solicitação
+        </button>
+    </div>
+
+    <!-- Tabela de Solicitações do Aluno -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#ID</th>
+                            <th>Nome do Documento</th>
+                            <th>Comissão Destino</th>
+                            <th>Horas (Sol/Conc)</th>
+                            <th>Status</th>
+                            <th>Parecer Público</th>
+                            <th>Operações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Linha 1: Estado CRIADA -->
+                        <tr>
+                            <td>#104</td>
+                            <td>Certificado Curso Python 20h.pdf</td>
+                            <td><span class="badge bg-secondary">Complementares</span></td>
+                            <td>20h / --</td>
+                            <td><span class="badge bg-info text-dark">CRIADA</span></td>
+                            <td><em class="text-muted">Ainda não enviada</em></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-success" title="Enviar para a Comissão"><i class="bi bi-send"></i> Enviar</button>
+                                    <button class="btn btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-outline-warning" title="Cancelar"><i class="bi bi-slash-circle"></i></button>
+                                    <button class="btn btn-outline-danger" title="Excluir do Banco"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Linha 2: Estado AVALIADA -->
+                        <tr>
+                            <td>#101</td>
+                            <td>Certificado Ação Social Lixo Zero.pdf</td>
+                            <td><span class="badge bg-primary">Extensão</span></td>
+                            <td>30h / 20h</td>
+                            <td><span class="badge bg-warning text-dark">AVALIADA</span></td>
+                            <td>Deferido parcialmente. Máximo de 20h para oficinas curtas.</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-success" title="Aceitar Parecer"><i class="bi bi-check-circle"></i> Aceitar</button>
+                                    <button class="btn btn-outline-danger" title="Solicitar Recurso"><i class="bi bi-arrow-counterclockwise"></i> Recurso</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Linha 3: Estado ENVIADA -->
+                        <tr>
+                            <td>#99</td>
+                            <td>Relatório Parcial Estágio Empresa X.pdf</td>
+                            <td><span class="badge bg-warning text-dark">Estágio</span></td>
+                            <td>150h / --</td>
+                            <td><span class="badge bg-secondary">ENVIADA</span></td>
+                            <td><em class="text-muted">Aguardando análise</em></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-warning" title="Cancelar"><i class="bi bi-slash-circle"></i> Cancelar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cadastrar Solicitação (COM UPLOAD DE COMPROVANTE) -->
+<div class="modal fade" id="modalNovaSolicitacao" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- ATENÇÃO: enctype="multipart/form-data" é obrigatório para upload de arquivos -->
+            <form action="solicitacao" method="POST" enctype="multipart/form-data">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Registrar Nova Solicitação</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Comissão / Tipo de Carga Horária</label>
+                        <select name="tipoHoras" class="form-select" required>
+                            <option value="EXTENSAO">Comissão de Ações Extensionistas</option>
+                            <option value="COMPLEMENTAR">Comissão de Atividades Complementares</option>
+                            <option value="ESTAGIO">Comissão de Estágio</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nome/Título do Documento Comprovante</label>
+                        <input type="text" name="nomeDocumento" class="form-control" 
+                               placeholder="Ex: Certificado de Apresentação no Evento X" required>
+                    </div>
+
+                    <!-- CAMPO DE UPLOAD DO DOCUMENTO -->
+                    <div class="mb-3">
+                        <label for="arquivoComprovante" class="form-label fw-semibold">
+                            Arquivo Comprobatório (PDF, PNG ou JPG)
+                        </label>
+                        <input class="form-control" type="file" id="arquivoComprovante" 
+                               name="arquivoComprovante" accept=".pdf,.png,.jpg,.jpeg" required>
+                        <div class="form-text">Tamanho máximo recomendado: 5 MB.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Horas Pretendidas</label>
+                        <input type="number" name="horasSolicitadas" class="form-control" required min="1">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Observações Adicionais do Discente</label>
+                        <textarea name="observacaoDiscente" class="form-control" rows="3" 
+                                  placeholder="Insira detalhes complementares caso necessário..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" name="acao" value="salvar_rascunho" class="btn btn-secondary">Salvar (Criada)</button>
+                    <button type="submit" name="acao" value="enviar_comissao" class="btn btn-primary">Salvar e Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

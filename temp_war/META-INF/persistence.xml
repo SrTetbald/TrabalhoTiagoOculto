@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+	
+	<persistence-unit name="caju" transaction-type="RESOURCE_LOCAL">
+		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+
+        <!-- Em ambiente Java SE / Tomcat standalone, é boa prática listar as entidades 
+        <class>br.ufrrj.si.web2.model.Discente</class>
+        <class>br.ufrrj.si.web2.Solicitacao</class>
+        <class>br.ufrrj.si.web2.HistoricoStatus</class>
+        <class>br.ufrrj.si.web2.MembroComissao</class>
+        <class>br.ufrrj.si.web2.AtuacaoComissao</class>
+        -->
+        <!--Em vez de listar todas as classes (recomendado para Java SE), estou dizendo para considerar todas-->
+		<exclude-unlisted-classes>false</exclude-unlisted-classes>
+		<properties>
+	<!-- <property name="hibernate.archive.autodetection" value="class, hbm"/> -->
+	<!-- dados da conexao -->
+	<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
+	<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/nome_banco" />
+	<property name="javax.persistence.jdbc.user" value="root" /><!--escolha o usuário do banco que quer usar-->
+	<property name="javax.persistence.jdbc.password" value="" /><!--senha do usuario escolhido-->
+
+	<!--  propriedades do hibernate -->
+	<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
+	<property name="hibernate.show_sql" value="true" />
+	<property name="hibernate.format_sql" value="true" />
+	
+	<!--  atualiza o banco, gera as tabelas se for preciso -->
+    <!-- opções
+            "none" - não faz nada no esquema do banco, é o mesmo que omitr a propriedade. Para produção.
+            "validate" - compara entidades JPA e tabelas e lança exceção em caso de incompatibilidade. Prod. tb.
+            "update" - cria a tabela ou atualiza se já existirem. Desenvolvimento. Não apaga colunas antigas.
+            "create-drop" - cria o esquema toda vez que é rodado apagando tudo que estiver lá.
+    -->
+	<property name="hibernate.hbm2ddl.auto" value="update" />
+    
+   </properties>
+</persistence-unit>
+
+
+
+</persistence>
